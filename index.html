@@ -1,0 +1,15 @@
+<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard · CRM</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap"><link rel="stylesheet" href="style.css"></head><body><div id="app"><nav id="nav"></nav><main id="main"></main></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script><script>
+start().then(async s=>{if(!s)return;
+const g=t=>sb.from(t).select('*').then(r=>r.data||[]);
+const[c,d,t,k]=await Promise.all(['contacts','deals','tickets','tasks'].map(g));
+const won=d.filter(x=>x.stage==='Won'),lost=d.filter(x=>x.stage==='Lost'),open=d.filter(x=>!['Won','Lost'].includes(x.stage));
+const sum=a=>a.reduce((n,x)=>n+Number(x.value||0),0),T=today();
+const conv=won.length+lost.length?Math.round(100*won.length/(won.length+lost.length)):0;
+const overdue=k.filter(x=>!x.done&&x.due_date&&x.due_date<T),openT=t.filter(x=>x.status!=='Closed'),newL=c.filter(x=>x.status==='Lead'&&x.lead_stage==='New');
+const tally=(a,f,v)=>a.reduce((m,x)=>{const key=f(x)||'Unknown';m[key]=(m[key]||0)+(v?v(x):1);return m},{});
+const bars=(o,f)=>{const mx=Math.max(1,...Object.values(o));return Object.entries(o).sort().map(([a,n])=>`<div class="bar"><span>${esc(a)}</span><i style="width:${100*n/mx}%"></i><span>${f(n)}</span></div>`).join('')||'<p class="mute">No data yet.</p>'};
+const card=(n,l)=>`<div class="card"><b>${n}</b><span>${l}</span></div>`;
+const pl=(n,w)=>n+' '+w+(n===1?'':'s');
+$('#main').innerHTML='<div class="top"><h1>Dashboard</h1></div><div class="cards">'+card(money(sum(won)),'Revenue (won deals)')+card(open.length+' · '+money(sum(open)),'Active deals')+card(conv+'%','Conversion rate')+card(c.length,'Customers')+'</div><div class="grid2"><div class="card"><h3>Needs attention</h3><p>'+pl(overdue.length,'overdue task')+'</p><p>'+pl(newL.length,'new lead')+'</p><p>'+pl(openT.length,'open ticket')+'</p></div><div class="card"><h3>Monthly sales</h3>'+bars(tally(won,x=>(x.expected_close||'').slice(0,7),x=>Number(x.value)),money)+'</div><div class="card"><h3>Lead sources</h3>'+bars(tally(c,x=>x.source),n=>n)+'</div><div class="card"><h3>Deals by stage</h3>'+bars(tally(d,x=>x.stage),n=>n)+'</div></div>'})
+
+</script></body></html>

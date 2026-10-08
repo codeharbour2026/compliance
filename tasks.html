@@ -1,0 +1,4 @@
+<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tasks · CRM</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap"><link rel="stylesheet" href="style.css"></head><body><div id="app"><nav id="nav"></nav><main id="main"></main></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script><script>
+start().then(s=>s&&resource({table:'tasks',title:'Tasks & reminders',singular:'task',order:'due_date',asc:1,defaults:{due_date:today()},fields:[{k:'title',label:'Task',req:1},{k:'contact_id',label:'Customer',ref:'contacts',refLabel:'name'},{k:'due_date',label:'Due',type:'date'},{k:'done',label:'Done',type:'checkbox'}],cols:['done','title','contact_id','due_date']}))
+
+</script></body></html>

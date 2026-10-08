@@ -1,0 +1,4 @@
+<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contacts · CRM</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap"><link rel="stylesheet" href="style.css"></head><body><div id="app"><nav id="nav"></nav><main id="main"></main></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script><script>
+start().then(s=>s&&resource({table:'contacts',title:'Contacts',singular:'contact',defaults:{status:'Active'},fields:CONTACT_FIELDS,cols:['name','company','email','phone','status','total_spent','last_contact']}))
+
+</script></body></html>

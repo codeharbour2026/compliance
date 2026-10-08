@@ -1,0 +1,17 @@
+<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pipeline · CRM</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap"><link rel="stylesheet" href="style.css"></head><body><div id="app"><nav id="nav"></nav><main id="main"></main></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script><script>
+const ST=['New Inquiry','Meeting Scheduled','Quote Sent','Negotiation','Won','Lost'];
+const CFG={table:'deals',singular:'deal',defaults:{stage:'New Inquiry',probability:50},fields:[{k:'title',label:'Deal',req:1},{k:'contact_id',label:'Customer',ref:'contacts',refLabel:'name'},{k:'value',label:'Value ($)',type:'number'},{k:'probability',label:'Probability (%)',type:'number'},{k:'expected_close',label:'Expected close',type:'date'},{k:'stage',label:'Stage',options:ST}]};
+start().then(async s=>{if(!s)return;const refs=await loadRefs(CFG);let rows=[];
+$('#main').innerHTML='<div class="top"><h1>Sales pipeline</h1><button class="btn" id="new">New deal</button></div><div class="board" id="b"></div>';
+const draw=()=>{$('#b').innerHTML=ST.map(st=>{const c=rows.filter(r=>r.stage===st);return`<div class="col" data-st="${esc(st)}"><h3><span>${st} (${c.length})</span><span>${money(c.reduce((a,r)=>a+Number(r.value||0),0))}</span></h3>`+c.map(r=>`<div class="deal" draggable="true" data-id="${r.id}"><b>${esc(r.title)}</b><br><span class="mute">${esc((refs.contact_id.find(x=>x.id===r.contact_id)||{}).name||'')}</span><br>${money(r.value)} · ${r.probability??0}%${r.expected_close?`<br><span class="mute">Close ${fdate(r.expected_close)}</span>`:''}</div>`).join('')+'</div>'}).join('')};
+const load=async()=>{const{data,error}=await sb.from('deals').select('*').order('created_at');if(error)toast(error.message);rows=data||[];draw()};
+$('#new').onclick=()=>formDialog(CFG,null,refs,load);
+const b=$('#b');let dragId;
+b.onclick=e=>{const c=e.target.closest('.deal');if(c)formDialog(CFG,rows.find(r=>r.id==c.dataset.id),refs,load)};
+b.ondragstart=e=>{dragId=e.target.dataset.id;e.target.classList.add('drag')};
+b.ondragend=e=>e.target.classList.remove('drag');
+b.ondragover=e=>e.preventDefault();
+b.ondrop=async e=>{e.preventDefault();const col=e.target.closest('.col');if(!col||!dragId)return;const{error}=await sb.from('deals').update({stage:col.dataset.st}).eq('id',dragId);if(error)toast(error.message);load()};
+load()})
+
+</script></body></html>
